@@ -6,9 +6,9 @@ import edu.kpi.comsys.dis.lab.entities.User;
 import edu.kpi.comsys.dis.lab.repositories.DashboardsRepository;
 import edu.kpi.comsys.dis.lab.repositories.StoriesListRepository;
 import edu.kpi.comsys.dis.lab.repositories.UserRepository;
-import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +17,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.transaction.Transactional;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
@@ -42,6 +44,8 @@ public class StoriesListsTests {
     private StoriesList obsoleteList;
 
     private Dashboard workflowDashboard;
+    private Dashboard activeDashboard;
+    private Dashboard inactiveDashboard;
     private Dashboard historyDashboard;
 
     @Before
@@ -55,25 +59,48 @@ public class StoriesListsTests {
         obsoleteList = addList(user, "Obsolete");
 
         workflowDashboard = addDashboard(user, "Workflow");
+        activeDashboard = addDashboard(user, "Active");
+        inactiveDashboard = addDashboard(user, "Inactive");
         historyDashboard = addDashboard(user, "History");
 
-        addListToDashboard(toDoList, workflowDashboard);
-        addListToDashboard(inProgressList, workflowDashboard);
-        addListToDashboard(testingList, workflowDashboard);
-        addListToDashboard(resolvedList, historyDashboard);
-        addListToDashboard(obsoleteList, historyDashboard);
+        addListsToDashboard(workflowDashboard, toDoList, inProgressList, testingList);
+        addListsToDashboard(historyDashboard, resolvedList, obsoleteList);
+        addListsToDashboard(activeDashboard, inProgressList, testingList);
+        addListsToDashboard(inactiveDashboard, toDoList, resolvedList, obsoleteList);
     }
 
     @Test
     public void testGetListsOnDashboard() throws Exception {
-        List<Dashboard> foundDashboard = dashboardsRepository.findByTitleContaining("flow");
-        Assert.assertThat(foundDashboard, contains(workflowDashboard));
+        List<StoriesList> foundLists;
+        foundLists = listRepository.findAllOnDashboard(workflowDashboard.getId());
+        Assert.assertThat(foundLists, containsInAnyOrder(toDoList, inProgressList, testingList));
+
+        foundLists = listRepository.findAllOnDashboard(activeDashboard.getId());
+        Assert.assertThat(foundLists, containsInAnyOrder(inProgressList, testingList));
+
+        foundLists = listRepository.findAllOnDashboard(inactiveDashboard.getId());
+        Assert.assertThat(foundLists, containsInAnyOrder(toDoList, resolvedList, obsoleteList));
+
+        foundLists = listRepository.findAllOnDashboard(historyDashboard.getId());
+        Assert.assertThat(foundLists, containsInAnyOrder(resolvedList, obsoleteList));
     }
 
     @Test
     public void testFindListByTitle() throws Exception {
+        List<StoriesList> foundLists = listRepository.findByTitleContaining("Progress");
+        Assert.assertThat(foundLists, contains(inProgressList));
+    }
 
+    @Test
+    @Transactional
+    public void testAddListToDashboard() throws Exception {
+        workflowDashboard.getLists().add(resolvedList);
+        dashboardsRepository.save(workflowDashboard);
 
+        resolvedList = listRepository.findOne(resolvedList.getId());
+        workflowDashboard = dashboardsRepository.findOne(workflowDashboard.getId());
+
+        Assert.assertThat(workflowDashboard.getLists(), hasItem(resolvedList));
     }
 
     private StoriesList addList(User user, String title) {
@@ -86,9 +113,8 @@ public class StoriesListsTests {
         return dashboardsRepository.save(dashboard);
     }
 
-    private void addListToDashboard(StoriesList list, Dashboard dashboard) {
-        dashboard.getLists().add(list);
-        list.getDashboards().add(dashboard);
+    private void addListsToDashboard(Dashboard dashboard, StoriesList ...list) {
+        dashboard.getLists().addAll(Arrays.asList(list));
         dashboardsRepository.save(dashboard);
     }
 

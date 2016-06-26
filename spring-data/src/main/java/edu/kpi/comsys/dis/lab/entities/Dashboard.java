@@ -1,8 +1,8 @@
 package edu.kpi.comsys.dis.lab.entities;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity
 public class Dashboard {
@@ -24,7 +24,7 @@ public class Dashboard {
             joinColumns={ @JoinColumn(name = "dashboard_id") },
             inverseJoinColumns={ @JoinColumn(name="list_id") }
     )
-    private List<StoriesList> lists;
+    private Set<StoriesList> lists;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(
@@ -32,11 +32,11 @@ public class Dashboard {
             joinColumns={ @JoinColumn(name = "dashboard_id") },
             inverseJoinColumns={ @JoinColumn(name="user_id") }
     )
-    private List<User> coworkers;
+    private Set<User> coworkers;
 
     public Dashboard() {
-        this.lists = new ArrayList<>();
-        this.coworkers = new ArrayList<>();
+        this.lists = new LinkedHashSet<>();
+        this.coworkers = new LinkedHashSet<>();
     }
 
     public Dashboard(String title) {
@@ -79,20 +79,20 @@ public class Dashboard {
         this.user = user;
     }
 
-    public List<StoriesList> getLists() {
+    public Set<StoriesList> getLists() {
         return lists;
     }
 
-    public void setLists(List<StoriesList> lists) {
-        this.lists = lists;
+    public void setLists(Set<StoriesList> lists) {
+        this.lists = new LinkedHashSet<>(lists);
     }
 
-    public List<User> getCoworkers() {
+    public Set<User> getCoworkers() {
         return coworkers;
     }
 
-    public void setCoworkers(List<User> coworkers) {
-        this.coworkers = coworkers;
+    public void setCoworkers(Set<User> coworkers) {
+        this.coworkers = new LinkedHashSet<>(coworkers);
     }
 
     @Override
@@ -102,7 +102,7 @@ public class Dashboard {
 
         Dashboard dashboard = (Dashboard) o;
 
-        return !(id != null ? !id.equals(dashboard.id) : dashboard.id != null);
+        return id != null && id.equals(dashboard.id);
     }
 
     @Override

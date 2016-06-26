@@ -21,12 +21,8 @@ public class StoriesList {
     @OneToMany(mappedBy = "list", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Story> stories;
 
-    @ManyToMany(mappedBy = "lists", fetch = FetchType.LAZY)
-    private List<Dashboard> dashboards;
-
     public StoriesList() {
         this.stories = new ArrayList<>();
-        this.dashboards = new ArrayList<>();
     }
 
     public StoriesList(String title) {
@@ -74,15 +70,7 @@ public class StoriesList {
     }
 
     public void setStories(List<Story> stories) {
-        this.stories = stories;
-    }
-
-    public List<Dashboard> getDashboards() {
-        return dashboards;
-    }
-
-    public void setDashboards(List<Dashboard> dashboards) {
-        this.dashboards = dashboards;
+        this.stories = new ArrayList<>(stories);
     }
 
     @Override
@@ -92,7 +80,7 @@ public class StoriesList {
 
         StoriesList list = (StoriesList) o;
 
-        return !(id != null ? !id.equals(list.id) : list.id != null);
+        return id != null && id.equals(list.id);
     }
 
     @Override

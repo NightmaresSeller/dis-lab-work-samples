@@ -2,7 +2,9 @@ package edu.kpi.comsys.dis.lab.entities;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class User {
@@ -19,19 +21,20 @@ public class User {
     @PrimaryKeyJoinColumn
     private UserInfo info;
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Story> stories;
+    private Set<Story> stories;
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<StoriesList> lists;
+    private Set<StoriesList> lists;
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Dashboard> dashboards;
+    private Set<Dashboard> dashboards;
     @ManyToMany(mappedBy = "coworkers", fetch = FetchType.LAZY)
-    private List<Dashboard> sharedDashboards;
+    private Set<Dashboard> sharedDashboards;
 
     public User() {
         this.info = new UserInfo(this);
-        this.stories = new ArrayList<>();
-        this.lists = new ArrayList<>();
-        this.dashboards = new ArrayList<>();
+        this.stories = new LinkedHashSet<>();
+        this.lists = new LinkedHashSet<>();
+        this.dashboards = new LinkedHashSet<>();
+        this.sharedDashboards = new LinkedHashSet<>();
     }
 
     public User(String email, String password) {
@@ -72,36 +75,36 @@ public class User {
         this.info = info;
     }
 
-    public List<Story> getStories() {
+    public Set<Story> getStories() {
         return stories;
     }
 
-    public void setStories(List<Story> stories) {
-        this.stories = stories;
+    public void setStories(Set<Story> stories) {
+        this.stories = new LinkedHashSet<>(stories);
     }
 
-    public List<StoriesList> getLists() {
+    public Set<StoriesList> getLists() {
         return lists;
     }
 
-    public void setLists(List<StoriesList> lists) {
-        this.lists = lists;
+    public void setLists(Set<StoriesList> lists) {
+        this.lists = new LinkedHashSet<>(lists);
     }
 
-    public List<Dashboard> getDashboards() {
+    public Set<Dashboard> getDashboards() {
         return dashboards;
     }
 
-    public void setDashboards(List<Dashboard> dashboards) {
+    public void setDashboards(Set<Dashboard> dashboards) {
         this.dashboards = dashboards;
     }
 
-    public List<Dashboard> getSharedDashboards() {
+    public Set<Dashboard> getSharedDashboards() {
         return sharedDashboards;
     }
 
-    public void setSharedDashboards(List<Dashboard> sharedDashboards) {
-        this.sharedDashboards = sharedDashboards;
+    public void setSharedDashboards(Set<Dashboard> sharedDashboards) {
+        this.sharedDashboards = new LinkedHashSet<>(sharedDashboards);
     }
 
     @Override
@@ -111,7 +114,7 @@ public class User {
 
         User user = (User) o;
 
-        return !(id != null ? !id.equals(user.id) : user.id != null);
+        return id != null && id.equals(user.id);
     }
 
     @Override

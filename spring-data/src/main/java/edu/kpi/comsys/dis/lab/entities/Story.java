@@ -125,7 +125,7 @@ public class Story {
 
         Story story = (Story) o;
 
-        return !(id != null ? !id.equals(story.id) : story.id != null);
+        return id != null && id.equals(story.id);
     }
 
     @Override
