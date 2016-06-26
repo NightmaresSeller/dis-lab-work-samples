@@ -12,6 +12,7 @@ import java.util.List;
 public interface StoriesListRepository extends CrudRepository<StoriesList, Long> {
 
     List<StoriesList> findByTitleContaining(String title);
+    List<StoriesList> findByUserId(Long userId);
     @Query("SELECT DISTINCT sl FROM Dashboard d JOIN d.lists sl WHERE d.id = :dashboardId")
     List<StoriesList> findAllOnDashboard(@Param("dashboardId") Long dashboardId);
 

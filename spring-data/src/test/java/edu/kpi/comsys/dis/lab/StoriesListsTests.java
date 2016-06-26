@@ -70,6 +70,16 @@ public class StoriesListsTests {
     }
 
     @Test
+    @Transactional
+    public void testGetUserLists() throws Exception {
+        List<StoriesList> userLists = listRepository.findByUserId(user.getId());
+        Assert.assertThat(userLists, containsInAnyOrder(toDoList, inProgressList, testingList, resolvedList, obsoleteList));
+
+        User updatedUser = userRepository.findOne(user.getId());
+        Assert.assertThat(updatedUser.getLists(), containsInAnyOrder(toDoList, inProgressList, testingList, resolvedList, obsoleteList));
+    }
+
+    @Test
     public void testGetListsOnDashboard() throws Exception {
         List<StoriesList> foundLists;
         foundLists = listRepository.findAllOnDashboard(workflowDashboard.getId());
@@ -105,11 +115,13 @@ public class StoriesListsTests {
 
     private StoriesList addList(User user, String title) {
         StoriesList list = new StoriesList(user, title);
+        user.getLists().add(list);
         return listRepository.save(list);
     }
 
     private Dashboard addDashboard(User user, String title) {
         Dashboard dashboard = new Dashboard(user, title);
+        user.getDashboards().add(dashboard);
         return dashboardsRepository.save(dashboard);
     }
 

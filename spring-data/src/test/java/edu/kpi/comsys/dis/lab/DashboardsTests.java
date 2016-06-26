@@ -99,6 +99,7 @@ public class DashboardsTests {
 
     private Dashboard addDashboard(User user, String title) {
         Dashboard dashboard = new Dashboard(user, title);
+        user.getDashboards().add(dashboard);
         return dashboardsRepository.save(dashboard);
     }
 

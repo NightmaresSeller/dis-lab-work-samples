@@ -73,6 +73,8 @@ public class StoriesList {
         this.stories = new ArrayList<>(stories);
     }
 
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -77,7 +77,6 @@ public class Story {
         this.type = type;
     }
 
-
     public String getReporter() {
         return reporter;
     }
@@ -125,7 +124,7 @@ public class Story {
 
         Story story = (Story) o;
 
-        return id != null && id.equals(story.id);
+        return !(id != null ? !id.equals(story.id) : story.id != null);
     }
 
     @Override
