@@ -7,6 +7,9 @@ public class ListDTO implements EntityDTO<StoriesList> {
     private Long id;
     private String title;
 
+    public ListDTO() {
+    }
+
     public ListDTO(Long id, String title) {
         this.id = id;
         this.title = title;

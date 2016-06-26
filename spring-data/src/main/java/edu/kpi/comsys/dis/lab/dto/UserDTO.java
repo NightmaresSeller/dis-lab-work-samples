@@ -12,6 +12,9 @@ public class UserDTO implements EntityDTO<User> {
     private String organization;
     private String title;
 
+    public UserDTO() {
+    }
+
     public UserDTO(Long id,
                    String email,
                    String password,

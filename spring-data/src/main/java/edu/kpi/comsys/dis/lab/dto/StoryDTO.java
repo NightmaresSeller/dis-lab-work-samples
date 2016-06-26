@@ -11,6 +11,9 @@ public class StoryDTO implements EntityDTO<Story> {
     private String title;
     private String description;
 
+    public StoryDTO() {
+    }
+
     public StoryDTO(Long id,
                     String type,
                     String reporter,

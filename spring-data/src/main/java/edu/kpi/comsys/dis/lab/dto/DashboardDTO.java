@@ -7,6 +7,9 @@ public class DashboardDTO implements EntityDTO<Dashboard> {
     private Long id;
     private String title;
 
+    public DashboardDTO() {
+    }
+
     public DashboardDTO(Long id, String title) {
         this.id = id;
         this.title = title;
