@@ -4,24 +4,54 @@ import javax.persistence.*;
 
 @Entity
 public class Story {
-    @Id
+
     @Column(name = "story_id")
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
     private String type;
-    private String status;
     private String reporter;
     private String assignee;
     private String title;
     private String description;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "list_id")
     private StoriesList list;
+
+    public Story() {
+    }
+
+    public Story(User user) {
+        this.user = user;
+    }
+
+    public Story(String type,
+                 String reporter,
+                 String assignee,
+                 String title,
+                 String description) {
+        this.type = type;
+        this.reporter = reporter;
+        this.assignee = assignee;
+        this.title = title;
+        this.description = description;
+    }
+
+    public Story(User user,
+                 String type,
+                 String reporter,
+                 String assignee,
+                 String title,
+                 String description) {
+        this(type, reporter, assignee, title, description);
+        this.user = user;
+    }
 
     public Long getId() {
         return id;
@@ -47,13 +77,6 @@ public class Story {
         this.type = type;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 
     public String getReporter() {
         return reporter;
@@ -93,6 +116,33 @@ public class Story {
 
     public void setList(StoriesList list) {
         this.list = list;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Story story = (Story) o;
+
+        return !(id != null ? !id.equals(story.id) : story.id != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Story{" +
+                "id=" + id +
+                ", type='" + type + '\'' +
+                ", reporter='" + reporter + '\'' +
+                ", assignee='" + assignee + '\'' +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                '}';
     }
 
 }

@@ -1,31 +1,49 @@
 package edu.kpi.comsys.dis.lab.entities;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 public class StoriesList {
 
-    @Id
     @Column(name = "list_id")
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
     private String title;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "list", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "list", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Story> stories;
 
-    @ManyToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "dashboards_lists",
-            joinColumns={ @JoinColumn(name = "list_id") },
-            inverseJoinColumns={ @JoinColumn(name="dashboard_id") }
-    )
-    private List<StoriesList> dashboards;
+    @ManyToMany(mappedBy = "lists", fetch = FetchType.LAZY)
+    private List<Dashboard> dashboards;
+
+    public StoriesList() {
+        this.stories = new ArrayList<>();
+        this.dashboards = new ArrayList<>();
+    }
+
+    public StoriesList(String title) {
+        this();
+        this.title = title;
+    }
+
+    public StoriesList(User user) {
+        this();
+        this.user = user;
+    }
+
+    public StoriesList(User user, String title) {
+        this();
+        this.title = title;
+        this.user = user;
+    }
 
     public Long getId() {
         return id;
@@ -59,12 +77,35 @@ public class StoriesList {
         this.stories = stories;
     }
 
-    public List<StoriesList> getDashboards() {
+    public List<Dashboard> getDashboards() {
         return dashboards;
     }
 
-    public void setDashboards(List<StoriesList> dashboards) {
+    public void setDashboards(List<Dashboard> dashboards) {
         this.dashboards = dashboards;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        StoriesList list = (StoriesList) o;
+
+        return !(id != null ? !id.equals(list.id) : list.id != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "StoriesList{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                '}';
     }
 
 }
