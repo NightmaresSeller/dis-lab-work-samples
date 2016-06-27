@@ -8,7 +8,6 @@ import edu.kpi.comsys.dis.lab.repositories.StoriesListRepository;
 import edu.kpi.comsys.dis.lab.repositories.UserRepository;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
