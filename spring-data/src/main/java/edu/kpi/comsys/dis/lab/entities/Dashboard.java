@@ -11,13 +11,10 @@ public class Dashboard {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
-
     private String title;
-
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "user_id")
     private User user;
-
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "dashboards_lists",
@@ -25,7 +22,6 @@ public class Dashboard {
             inverseJoinColumns={ @JoinColumn(name="list_id") }
     )
     private Set<StoriesList> lists;
-
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "dashboards_sharing",

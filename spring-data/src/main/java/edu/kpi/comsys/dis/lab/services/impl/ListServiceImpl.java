@@ -16,6 +16,7 @@ import edu.kpi.comsys.dis.lab.services.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -51,14 +52,6 @@ public class ListServiceImpl implements ListService {
     }
 
     @Override
-    public List<StoriesList> getListsOnDashboard(long dashboardId) throws EntityNotFoundException {
-        if (!dashboardsRepository.exists(dashboardId)) {
-            throw new DashboardNotFoundException(dashboardId);
-        }
-        return listRepository.findAllOnDashboard(dashboardId);
-    }
-
-    @Override
     public StoriesList createList(long userId, long dashboardId, StoriesList list) throws EntityNotFoundException {
         User creatorUser = userRepository.findOne(userId);
         if (creatorUser == null) {
@@ -83,16 +76,28 @@ public class ListServiceImpl implements ListService {
 
     @Override
     public StoriesList updateList(StoriesList list) throws EntityNotFoundException {
-        if (!listRepository.exists(list.getId())) {
+        StoriesList currentList = listRepository.findOne(list.getId());
+        if (currentList == null) {
             throw new ListNotFoundException(list.getId());
         }
-        return listRepository.save(list);
+        StoriesList updatedList = mergeListUpdate(currentList, list);
+        return listRepository.save(updatedList);
+    }
+
+    private StoriesList mergeListUpdate(StoriesList current, StoriesList update) {
+        current.setTitle(update.getTitle());
+        return current;
     }
 
     @Override
     public boolean deleteList(long listId) {
-        if (listRepository.exists(listId)) {
-            listRepository.delete(listId);
+        StoriesList deletingList = listRepository.findOne(listId);
+        if (deletingList != null) {
+            for (Dashboard dashboard : deletingList.getDashboards()) {
+                dashboard.getLists().remove(deletingList);
+                dashboardsRepository.save(dashboard);
+            }
+            listRepository.delete(deletingList);
             return true;
         } else {
             return false;

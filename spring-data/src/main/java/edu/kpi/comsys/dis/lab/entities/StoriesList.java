@@ -2,7 +2,9 @@ package edu.kpi.comsys.dis.lab.entities;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class StoriesList {
@@ -11,18 +13,18 @@ public class StoriesList {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
-
     private String title;
-
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "user_id")
     private User user;
-
     @OneToMany(mappedBy = "list", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Story> stories;
+    @ManyToMany(mappedBy = "lists", fetch = FetchType.LAZY)
+    private Set<Dashboard> dashboards;
 
     public StoriesList() {
         this.stories = new ArrayList<>();
+        this.dashboards = new LinkedHashSet<>();
     }
 
     public StoriesList(String title) {
@@ -73,7 +75,13 @@ public class StoriesList {
         this.stories = new ArrayList<>(stories);
     }
 
+    public Set<Dashboard> getDashboards() {
+        return dashboards;
+    }
 
+    public void setDashboards(Set<Dashboard> dashboards) {
+        this.dashboards = new LinkedHashSet<>(dashboards);
+    }
 
     @Override
     public boolean equals(Object o) {

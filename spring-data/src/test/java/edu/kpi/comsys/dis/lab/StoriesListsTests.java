@@ -125,8 +125,10 @@ public class StoriesListsTests {
         return dashboardsRepository.save(dashboard);
     }
 
-    private void addListsToDashboard(Dashboard dashboard, StoriesList ...list) {
-        dashboard.getLists().addAll(Arrays.asList(list));
+    private void addListsToDashboard(Dashboard dashboard, StoriesList ...lists) {
+        List<StoriesList> addingLists = Arrays.asList(lists);
+        dashboard.getLists().addAll(addingLists);
+        addingLists.forEach(list -> list.getDashboards().add(dashboard));
         dashboardsRepository.save(dashboard);
     }
 

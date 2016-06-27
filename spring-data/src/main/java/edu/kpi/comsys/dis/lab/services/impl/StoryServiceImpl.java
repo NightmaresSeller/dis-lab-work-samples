@@ -53,6 +53,7 @@ public class StoryServiceImpl implements StoryService {
         story.setUser(creatorUser);
         creatorUser.getStories().add(story);
         Story createdStory = storyRepository.save(story);
+        story.setList(targetList);
         targetList.getStories().add(createdStory);
         listRepository.save(targetList);
         return createdStory;
@@ -60,10 +61,22 @@ public class StoryServiceImpl implements StoryService {
 
     @Override
     public Story updateStory(Story story) throws EntityNotFoundException {
-        if (!storyRepository.exists(story.getId())) {
+        Story currentStory = storyRepository.findOne(story.getId());
+        if (currentStory == null) {
             throw new StoryNotFoundException(story.getId());
         }
-        return storyRepository.save(story);
+        Story updatedStory = mergeStoryUpdate(currentStory, story);
+        return storyRepository.save(updatedStory);
+    }
+
+    private Story mergeStoryUpdate(Story current, Story update) {
+        current.setType(update.getType());
+        current.setReporter(update.getReporter());
+        current.setAssignee(update.getAssignee());
+        current.setTitle(update.getTitle());
+        current.setDescription(update.getDescription());
+        current.setTitle(update.getTitle());
+        return current;
     }
 
     @Override
@@ -94,6 +107,7 @@ public class StoryServiceImpl implements StoryService {
             sourceList.getStories().remove(movingStory);
             listRepository.save(sourceList);
         }
+        movingStory.setList(destinationList);
         destinationList.getStories().add(movingStory);
         listRepository.save(destinationList);
         return true;

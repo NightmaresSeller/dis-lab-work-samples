@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
         user.setId(null); // ensure that we add new user rather than update existing
         User registeredUser = userRepository.saveIfNotExists(user);
         if (registeredUser == null) {
-            throw new EntityAlreadyExistsException("User already exists " + user);
+            throw new EntityAlreadyExistsException("User already exists");
         }
         return registeredUser;
     }

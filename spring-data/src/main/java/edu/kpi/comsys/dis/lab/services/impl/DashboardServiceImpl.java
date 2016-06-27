@@ -1,8 +1,10 @@
 package edu.kpi.comsys.dis.lab.services.impl;
 
 import edu.kpi.comsys.dis.lab.entities.Dashboard;
+import edu.kpi.comsys.dis.lab.entities.StoriesList;
 import edu.kpi.comsys.dis.lab.entities.User;
 import edu.kpi.comsys.dis.lab.repositories.DashboardsRepository;
+import edu.kpi.comsys.dis.lab.repositories.StoriesListRepository;
 import edu.kpi.comsys.dis.lab.repositories.UserRepository;
 import edu.kpi.comsys.dis.lab.services.DashboardService;
 import edu.kpi.comsys.dis.lab.services.exceptions.DashboardNotFoundException;
@@ -11,18 +13,22 @@ import edu.kpi.comsys.dis.lab.services.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.*;
-import java.util.stream.Stream;
 
 @Service
 public class DashboardServiceImpl implements DashboardService {
 
     private DashboardsRepository dashboardsRepository;
+    private StoriesListRepository listRepository;
     private UserRepository userRepository;
 
     @Autowired
-    public DashboardServiceImpl(DashboardsRepository dashboardsRepository, UserRepository userRepository) {
+    public DashboardServiceImpl(DashboardsRepository dashboardsRepository,
+                                StoriesListRepository listRepository,
+                                UserRepository userRepository) {
         this.dashboardsRepository = dashboardsRepository;
+        this.listRepository = listRepository;
         this.userRepository = userRepository;
     }
 
@@ -48,6 +54,14 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
+    public List<StoriesList> getDashboardLists(long dashboardId) throws EntityNotFoundException {
+        if (!dashboardsRepository.exists(dashboardId)) {
+            throw new DashboardNotFoundException(dashboardId);
+        }
+        return listRepository.findAllOnDashboard(dashboardId);
+    }
+
+    @Override
     public Dashboard createDashboard(long userId, Dashboard dashboard) throws EntityNotFoundException {
         User creatorUser = userRepository.findOne(userId);
         if (creatorUser == null) {
@@ -65,10 +79,17 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public Dashboard updateDashboard(Dashboard dashboard) throws EntityNotFoundException {
-        if (!dashboardsRepository.exists(dashboard.getId())) {
+        Dashboard currentDashboard = dashboardsRepository.findOne(dashboard.getId());
+        if (currentDashboard == null) {
             throw new DashboardNotFoundException(dashboard.getId());
         }
-        return dashboardsRepository.save(dashboard);
+        Dashboard updatedDashboard = mergeDashboardUpdate(currentDashboard, dashboard);
+        return dashboardsRepository.save(updatedDashboard);
+    }
+
+    private Dashboard mergeDashboardUpdate(Dashboard current, Dashboard update) {
+        current.setTitle(update.getTitle());
+        return current;
     }
 
     @Override
@@ -81,8 +102,18 @@ public class DashboardServiceImpl implements DashboardService {
         }
     }
 
+    @Transactional
     @Override
-    public void setDashboardCoworkers(long dashboardId, Set<Long> usersIds) throws EntityNotFoundException{
+    public Set<User> getDashboardCoworkers(long dashboardId) throws EntityNotFoundException {
+        Dashboard sharedDashboard = dashboardsRepository.findOne(dashboardId);
+        if (sharedDashboard == null) {
+            throw new DashboardNotFoundException(dashboardId);
+        }
+        return sharedDashboard.getCoworkers();
+    }
+
+    @Override
+    public void setDashboardCoworkers(long dashboardId, Set<Long> usersIds) throws EntityNotFoundException {
         if (usersIds == null) {
             throw new NullPointerException("Users IDs should not be null");
         }

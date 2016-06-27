@@ -10,7 +10,6 @@ public interface ListService {
 
     StoriesList getList(long listId);
     List<Story> getListStories(long listId) throws  EntityNotFoundException;
-    List<StoriesList> getListsOnDashboard(long dashboardId) throws EntityNotFoundException;
     StoriesList createList(long userId, long dashboardId, StoriesList list) throws EntityNotFoundException;
     StoriesList updateList(StoriesList list) throws EntityNotFoundException;
     boolean deleteList(long listId);

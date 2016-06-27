@@ -109,8 +109,9 @@ public class DashboardsTests {
     }
 
     private void shareDashboard(Dashboard dashboard, User ...coworkers) {
-        dashboard.getCoworkers().addAll(Arrays.asList(coworkers));
-        Stream.of(coworkers).forEach(cw -> cw.getSharedDashboards().add(dashboard));
+        List<User> newCoworkers = Arrays.asList(coworkers);
+        dashboard.getCoworkers().addAll(newCoworkers);
+        newCoworkers.forEach(cw -> cw.getSharedDashboards().add(dashboard));
         dashboardsRepository.save(dashboard);
     }
 
